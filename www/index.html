@@ -1,0 +1,137 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: https://ssl.gstatic.com; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+  <script src="components/loader.js"></script>
+  <script src="lib/onsenui/js/onsenui.min.js"></script>
+
+  <link rel="stylesheet" href="components/loader.css">
+  <link rel="stylesheet" href="lib/onsenui/css/onsenui.css">
+  <link rel="stylesheet" href="lib/onsenui/css/onsen-css-components.css">
+  <link rel="stylesheet" href="css/style.css">
+
+  <script>
+    ons.ready(function() {
+      console.log("Onsen UI is ready!");
+    });
+
+    document.addEventListener('show', function(event) {
+      var page = event.target;
+      var titleElement = document.querySelector('#toolbar-title');
+
+      if (page.matches('#home-page')) {
+        titleElement.innerHTML = 'ホーム';
+      } else if (page.matches('#send-page')) {
+        titleElement.innerHTML = '送付';
+      } else if (page.matches('#receive-page')) {
+        titleElement.innerHTML = '受取';
+      } else if (page.matches('#history-page')) {
+        titleElement.innerHTML = '履歴';
+      } else if (page.matches('#settings-page')) {
+        titleElement.innerHTML = '設定';
+      }
+    });
+
+    if (ons.platform.isIPhoneX()) {
+      document.documentElement.setAttribute('onsflag-iphonex-portrait', '');
+      document.documentElement.setAttribute('onsflag-iphonex-landscape', '');
+    }
+  </script>
+</head>
+<body>
+  <ons-page>
+    <ons-toolbar>
+      <div class="center" id="toolbar-title"></div>
+    </ons-toolbar>
+    <ons-tabbar position="auto">
+      <ons-tab label="ホーム" page="home.html" active>
+      </ons-tab>
+      <ons-tab label="送付" page="send.html">
+      </ons-tab>
+      <ons-tab label="受取" page="receive.html">
+      </ons-tab>
+      <ons-tab label="履歴" page="history.html">
+      </ons-tab>
+      <ons-tab label="設定" page="settings.html">
+      </ons-tab>
+    </ons-tabbar>
+  </ons-page>
+
+  <ons-template id="home.html">
+    <ons-page id="home-page">
+      <p style="text-align: center;">
+        This is the home page.
+      </p>
+    </ons-page>
+  </ons-template>
+
+  <ons-template id="send.html">
+    <ons-page id="send-page">
+      <p style="text-align: center;">
+        This is the send page.
+      </p>
+    </ons-page>
+  </ons-template>
+
+  <ons-template id="receive.html">
+    <ons-page id="receive-page">
+      <p style="text-align: center;">
+        This is the receive page.
+      </p>
+    </ons-page>
+  </ons-template>
+
+  <ons-template id="history.html">
+    <ons-page id="history-page">
+      <p style="text-align: center;">
+        This is the history page.
+      </p>
+    </ons-page>
+  </ons-template>
+
+  <ons-template id="settings.html">
+    <ons-page id="settings-page">
+      <p>ウォレットの設定</p>
+      <ons-list>
+        <ons-list-header>通貨・ウォレットの選択</ons-list-header>
+        <ons-list-item modifier="nodivider">
+          <div class="left">
+            <ons-select>
+              <select id="currencySelected">
+                <option value="XEM">XEM</option>
+              </select>
+            </ons-select>
+          </div>
+          <div class="right">
+            <ons-select>
+              <select id="walletNameSelected">
+                <option value="">新規ウォレットの追加</option>
+              </select>
+            </ons-select>
+          </div>
+        </ons-list-item>
+        <ons-list-header>ウォレット情報の追加・編集</ons-list-header>
+        <ons-list-item modifier="nodivider">
+          <div class="left">ウォレット名</div>
+          <div class="right"><ons-input id="walletNameSet" type="text" placeholder="ウォレット名を入力"></ons-input></div>
+        </ons-list-item>
+        <ons-list-item modifier="nodivider">
+          <div class="left">秘密鍵</div>
+          <div class="right"><ons-input id="privateKeySet" type="password" placeholder="秘密鍵を入力" style="font-size: 10px;"></ons-input></div>
+        </ons-list-item>
+        <ons-list-item modifier="nodivider">
+          <div class="left">アドレス</div>
+          <div class="right" style="font-size: 10px;" id="addressChecked"></div>
+        </ons-list-item>
+        <ons-list-item>
+          <div class="left"><ons-button>追加</ons-button></div>
+          <div class="right"><ons-button>変更</ons-button></div>
+        </ons-list-item>
+      </ons-list>
+    </ons-page>
+  </ons-template>
+
+</body>
+</html>
