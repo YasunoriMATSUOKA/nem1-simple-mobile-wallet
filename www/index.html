@@ -1,9 +1,12 @@
 <!DOCTYPE HTML>
 <html>
+
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: https://ssl.gstatic.com; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src * data: gap: https://ssl.gstatic.com; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
   <script src="components/loader.js"></script>
   <script src="lib/onsenui/js/onsenui.min.js"></script>
 
@@ -13,11 +16,11 @@
   <link rel="stylesheet" href="css/style.css">
 
   <script>
-    ons.ready(function() {
+    ons.ready(function () {
       console.log("Onsen UI is ready!");
     });
 
-    document.addEventListener('show', function(event) {
+    document.addEventListener('show', function (event) {
       var page = event.target;
       var titleElement = document.querySelector('#toolbar-title');
 
@@ -40,6 +43,7 @@
     }
   </script>
 </head>
+
 <body>
   <ons-page>
     <ons-toolbar>
@@ -61,9 +65,33 @@
 
   <ons-template id="home.html">
     <ons-page id="home-page">
-      <p style="text-align: center;">
-        This is the home page.
-      </p>
+      <ons-list>
+        <ons-list-header>ウォレット</ons-list-header>
+        <ons-list-item modifier="nodivider">
+          <div class="left">通貨</div>
+          <div class="right">
+            <ons-select>
+              <select id="currency">
+                <option value="XEM">XEM</option>
+              </select>
+            </ons-select>
+          </div>
+        </ons-list-item>
+        <ons-list-item modifier="nodivider">
+          <div class="left">アドレス</div>
+          <div class="right" style="font-size: 10px;">NAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</div>
+        </ons-list-item>
+        <ons-list-item modifier="nodivider">
+          <img
+            src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=NAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA">
+        </ons-list-item>
+      </ons-list>
+      <ons-list>
+        <ons-list-header>取引所</ons-list-header>
+        <ons-list-item modifier="nodivider">
+          <div class="left"></div>
+        </ons-list-item>
+      </ons-list>
     </ons-page>
   </ons-template>
 
@@ -93,45 +121,89 @@
 
   <ons-template id="settings.html">
     <ons-page id="settings-page">
-      <p>ウォレットの設定</p>
       <ons-list>
-        <ons-list-header>通貨・ウォレットの選択</ons-list-header>
+        <ons-list-header>ウォレットの設定</ons-list-header>
         <ons-list-item modifier="nodivider">
-          <div class="left">
+          <div class="left">通貨</div>
+          <div class="right">
             <ons-select>
               <select id="currencySelected">
                 <option value="XEM">XEM</option>
               </select>
             </ons-select>
           </div>
-          <div class="right">
-            <ons-select>
-              <select id="walletNameSelected">
-                <option value="">新規ウォレットの追加</option>
-              </select>
-            </ons-select>
-          </div>
-        </ons-list-item>
-        <ons-list-header>ウォレット情報の追加・編集</ons-list-header>
-        <ons-list-item modifier="nodivider">
-          <div class="left">ウォレット名</div>
-          <div class="right"><ons-input id="walletNameSet" type="text" placeholder="ウォレット名を入力"></ons-input></div>
         </ons-list-item>
         <ons-list-item modifier="nodivider">
           <div class="left">秘密鍵</div>
-          <div class="right"><ons-input id="privateKeySet" type="password" placeholder="秘密鍵を入力" style="font-size: 10px;"></ons-input></div>
+          <div class="right">
+            <ons-input id="privateKeySet" type="password" placeholder="秘密鍵を入力" style="font-size: 10px;"></ons-input>
+          </div>
         </ons-list-item>
         <ons-list-item modifier="nodivider">
           <div class="left">アドレス</div>
           <div class="right" style="font-size: 10px;" id="addressChecked"></div>
         </ons-list-item>
-        <ons-list-item>
-          <div class="left"><ons-button>追加</ons-button></div>
-          <div class="right"><ons-button>変更</ons-button></div>
+        <ons-list-item modifier="nodivider">
+          <div class="left">
+            <ons-button>保存</ons-button>
+          </div>
+          <div class="center">
+            <ons-button>キャンセル</ons-button>
+          </div>
+          <div class="right">
+            <ons-button>削除</ons-button>
+          </div>
+        </ons-list-item modifier="nodivider">
+        <ons-list-header>取引所設定</ons-list-header>
+        <ons-list-item modifier="nodivider">
+          <div class="left">取引所</div>
+          <div class="right">
+            <ons-select>
+              <select id="exchangeSel">
+                <option value="zaif">Zaif</option>
+              </select>
+            </ons-select>
+          </div>
+        </ons-list-item>
+        <ons-list-item modifier="nodivider">
+          <div class="left">API Key</div>
+          <div class="right">
+            <ons-input id="apiKeySet" type="text" placeholder="API Keyを入力"></ons-input>
+          </div>
+        </ons-list-item>
+        <ons-list-item modifier="nodivider">
+          <div class="left">API Secret</div>
+          <div class="right">
+            <ons-input id="apiKeySet" type="password" placeholder="API Secretを入力"></ons-input>
+          </div>
+        </ons-list-item>
+        <ons-list-item modifier="nodivider">
+          <div class="left">入金アドレス</div>
+          <div class="right">
+            <ons-input id="apiKeySet" type="text" placeholder="取引所入金アドレス入力"></ons-input>
+          </div>
+        </ons-list-item>
+        <ons-list-item modifier="nodivider">
+          <div class="left">入金メッセージ</div>
+          <div class="right">
+            <ons-input id="apiKeySet" type="text" placeholder="取引所入金メッセージ入力"></ons-input>
+          </div>
+        </ons-list-item>
+        <ons-list-item modifier="nodivider">
+          <div class="left">
+            <ons-button>保存</ons-button>
+          </div>
+          <div class="center">
+            <ons-button>キャンセル</ons-button>
+          </div>
+          <div class="right">
+            <ons-button>削除</ons-button>
+          </div>
         </ons-list-item>
       </ons-list>
     </ons-page>
   </ons-template>
 
 </body>
+
 </html>
