@@ -81,7 +81,7 @@
     "chalk": "2.4.2",
     "dateformat": "3.0.3",
     "eslint": "4.19.1",
-    "event-stream": "3.3.4",
+    "event-stream": "3.3.5",
     "gulp": "4.0.2",
     "gulp-autoprefixer": "4.1.0",
     "gulp-babel": "7.0.1",
