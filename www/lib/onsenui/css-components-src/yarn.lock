@@ -2830,13 +2830,13 @@ gulp-cssmin:
     map-stream "0.0.4"
     temp-write "~0.1.0"
 
-gulp-file@0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/gulp-file/-/gulp-file-0.3.0.tgz#e8c4d763f126fb3332fc416e3d1ef46ed67d8d0d"
-  integrity sha1-6MTXY/Em+zMy/EFuPR70btZ9jQ0=
+gulp-file@0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/gulp-file/-/gulp-file-0.4.0.tgz#451356a2ac5089c6db91a0444252a0543657006b"
+  integrity sha1-RRNWoqxQicbbkaBEQlKgVDZXAGs=
   dependencies:
-    gulp-util "^2.2.14"
     through2 "^0.4.1"
+    vinyl "^2.1.0"
 
 gulp-less@1.3.9:
   version "1.3.9"
@@ -2928,7 +2928,7 @@ gulp-stylus@1.3.7:
     stylus "*"
     through2 "^0.6.3"
 
-gulp-util@2.2.20, gulp-util@^2.2.14, gulp-util@~2.2.0:
+gulp-util@2.2.20, gulp-util@~2.2.0:
   version "2.2.20"
   resolved "https://registry.yarnpkg.com/gulp-util/-/gulp-util-2.2.20.tgz#d7146e5728910bd8f047a6b0b1e549bc22dbd64c"
   dependencies:
@@ -6677,7 +6677,7 @@ vinyl@^0.5.0:
     clone-stats "^0.0.1"
     replace-ext "0.0.1"
 
-vinyl@^2.0.0:
+vinyl@^2.0.0, vinyl@^2.1.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/vinyl/-/vinyl-2.2.0.tgz#d85b07da96e458d25b2ffe19fece9f2caa13ed86"
   integrity sha512-MBH+yP0kC/GQ5GwBqrTPTzEfiiLjta7hTtvQtbxBgTeSXsmKQRQecjibMbxIXzVT3Y9KJK+drOz1/k+vsu8Nkg==
