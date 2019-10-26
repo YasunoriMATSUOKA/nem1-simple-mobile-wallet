@@ -130,7 +130,7 @@
   "dependencies": {
     "@onsenui/custom-elements": "1.0.0",
     "@onsenui/fastclick": "1.1.1",
-    "core-js": "^2.5.1",
+    "core-js": "^3.0.0",
     "gulp-protractor": "^4.1.1"
   }
 }
