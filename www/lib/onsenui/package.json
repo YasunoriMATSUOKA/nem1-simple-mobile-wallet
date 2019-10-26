@@ -89,7 +89,7 @@
     "gulp-concat": "2.6.1",
     "gulp-cssmin": "0.2.0",
     "gulp-hub": "4.2.0",
-    "gulp-if": "2.0.2",
+    "gulp-if": "3.0.0",
     "gulp-insert": "0.5.0",
     "gulp-load-plugins": "1.6.0",
     "gulp-rename": "1.4.0",
