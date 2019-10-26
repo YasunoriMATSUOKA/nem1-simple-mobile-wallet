@@ -45,9 +45,24 @@
     function setPrivateKey(){
       const privateKeyRaw = document.getElementById("privateKeySet").value;
       console.log(privateKeyRaw);
-      //plugins.secureStorage.setItem(key, value, function(result){
-        // result: true=success, false=error
-      //});
+      const privateKey = privateKeyRaw
+      plugins.secureStorage.setItem("privateKey", privateKey, function(result){
+        if(result){
+          ons.notification.alert("秘密鍵を保存しました。");
+        }else{
+          ons.notification.alert("エラー：秘密鍵の保存に失敗しました！")
+        }
+      });
+    }
+    
+    function deletePrivateKey(){
+      plugins.secureStorage.removeItem("privateKey", function(result){
+        if(result){
+          ons.notification.alert("秘密鍵を削除しました。")
+        }else{
+          ons.notification.alert("エラー：秘密鍵の削除に失敗しました！")
+        }
+      });
     }
   </script>
 </head>
@@ -161,7 +176,7 @@
             <ons-button onclick="setPrivateKey()">保存</ons-button>
           </div>
           <div class="right">
-            <ons-button>削除</ons-button>
+            <ons-button onclick="deletePrivateKey()">削除</ons-button>
           </div>
         </ons-list-item modifier="nodivider">
         <ons-list-header>取引所設定</ons-list-header>
