@@ -15,6 +15,8 @@
   <link rel="stylesheet" href="lib/onsenui/css/onsen-css-components.css">
   <link rel="stylesheet" href="css/style.css">
 
+  <script src="lib/nem-sdk/nem-sdk.js"></script>
+
   <script>
     ons.ready(function () {
       console.log("Onsen UI is ready!");
@@ -41,6 +43,9 @@
       document.documentElement.setAttribute('onsflag-iphonex-portrait', '');
       document.documentElement.setAttribute('onsflag-iphonex-landscape', '');
     }
+
+    //Load nem-sdk
+    var nem = require("nem-sdk").default;
 
     //SecureStorage
     function setSecureStorage(key, value){
@@ -74,8 +79,7 @@
     //Set private key
     function setPrivateKey(){
       const privateKeyRaw = document.getElementById("privateKeySet").value;
-      console.log(privateKeyRaw);
-      const privateKey = privateKeyRaw
+      const privateKey = privateKeyRaw  //Todo: Validation process must be made.
       setSecureStorage("privateKey", privateKey);
     }
     
