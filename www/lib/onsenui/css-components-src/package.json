@@ -42,7 +42,7 @@
     "gulp-file": "0.4.0",
     "js-yaml": "3.13.1",
     "rollup": "0.68.2",
-    "rollup-plugin-babel": "3.0.2",
+    "rollup-plugin-babel": "3.0.7",
     "rollup-plugin-commonjs": "8.2.6"
   }
 }
