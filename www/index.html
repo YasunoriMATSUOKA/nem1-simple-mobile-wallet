@@ -23,51 +23,63 @@
     //Load nem-sdk
     var nem = require("nem-sdk").default;
 
+    //Onsen UI is ready
     ons.ready(function () {
       console.log("Onsen UI is ready!");
     });
 
+    //Escape
+    function htmlEscape(s){
+      s = s.replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#x27;");
+      return s;
+    }
+    
     //Validate privateKey and if OK get privateKey strings
     function getPrivateKey(privateKey){
-      if(privateKey !== undefined){
-        var keyPair = nem.crypto.keyPair.create(privateKey);
+      if(privateKey){
+        var keyPair = nem.crypto.keyPair.create(htmlEscape(privateKey));
         var publicKey = keyPair.publicKey.toString();
         var address = nem.model.address.toAddress(publicKey, nem.model.network.data.mainnet.id);
         var isValid = nem.model.address.isValid(address);
         if(isValid){
           return privateKey;
         }else{
-          ons.notification.alert("エラー：アドレスが異常です！適切な秘密鍵を設定タブから登録してください。");
-          return null;
+          ons.notification.toast("エラー：アドレスが異常です！適切な秘密鍵を設定タブから登録してください。", { timeout: 1000, animation: 'fall' });
+          return "";
         }
       }else{
-        ons.notification.alert("秘密鍵が未登録です！設定タブから登録してご利用ください。");
-        return null;
+        ons.notification.toast("秘密鍵が未登録です！設定タブから登録してご利用ください。", { timeout: 1000, animation: 'fall' });
+        return "";
       }
     }
 
     //Validate address and if OK get address strings
     function getAddress(privateKey){
-      if(privateKey !== undefined){
-        var keyPair = nem.crypto.keyPair.create(privateKey);
+      if(privateKey){
+        var keyPair = nem.crypto.keyPair.create(htmlEscape(privateKey));
         var publicKey = keyPair.publicKey.toString();
         var address = nem.model.address.toAddress(publicKey, nem.model.network.data.mainnet.id);
         var isValid = nem.model.address.isValid(address);
         if(isValid){
           return address;
         }else{
-          ons.notification.alert("エラー：アドレスが異常です！適切な秘密鍵を設定タブから登録してください。");
-          return null;
+          ons.notification.toast("エラー：アドレスが異常です！適切な秘密鍵を設定タブから登録してください。", { timeout: 1000, animation: 'fall' });
+          return "";
         }
       }else{
-        ons.notification.alert("秘密鍵が未登録です！設定タブから登録してご利用ください。");
-        return null;
+        ons.notification.toast("秘密鍵が未登録です！設定タブから登録してご利用ください。", { timeout: 1000, animation: 'fall' });
+        return "";
       }
     }
     
-    //Set QR address Todo: innerHTML is not good (for example setAttribute is good?)
+    //Set QR address
     function setQrAddress(){
-      document.getElementById("qrAddress").innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + getAddress(localStorage.privateKey) + '"></img>';
+      const url = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="' + getAddress(localStorage.privateKey) + '"';
+      document.getElementById("qrAddress").setAttribute("src", url);
     }
 
     document.addEventListener('show', function (event) {
@@ -98,13 +110,13 @@
 
     //Set private key
     function setPrivateKey(){
-      const privateKey = document.getElementById("privateKeySet").value;
+      const privateKey = htmlEscape(document.getElementById("privateKeySet").value);
       const address = getAddress(privateKey);
       if(address !== null){
         document.getElementById("addressChecked").value = address;
         localStorage.setItem("privateKey", privateKey);
         document.getElementById("privateKeySet").value = "";
-        ons.notification.alert("秘密鍵を登録しました。")
+        ons.notification.toast("秘密鍵を登録しました。", { timeout: 1000, animation: 'fall' })
       }else{
         //
       }
@@ -113,17 +125,21 @@
     //Delete private key
     function deletePrivateKey(){
       localStorage.removeItem("privateKey");
-      ons.notification.alert("秘密鍵を削除しました。");
+      ons.notification.toast("秘密鍵を削除しました。", { timeout: 1000, animation: 'fall' });
     }
     
     //Set exchange info
     function setExchangeInfo(){
-      //Todo: Set info must be validated
-      localStorage.setItem("apiKey", document.getElementById("apiKeySet").value);
-      localStorage.setItem("apiSecret", document.getElementById("apiSecretSet").value);
-      localStorage.setItem("depositAddress", document.getElementById("depositAddress").value);
-      localStorage.setItem("depositMessage", document.getElementById("depositMessage").value);
-      ons.notification.alert("取引所連携情報を登録しました。")
+      const apiKey = htmlEscape(document.getElementById("apiKeySet").value);
+      const apiSecret = htmlEscape(document.getElementById("apiSecretSet").value);
+      const depositAddress = htmlEscape(document.getElementById("depositAddress").value);
+      const depositMessage = htmlEscape(document.getElementById("depositMessage").value);
+      //Todo: Set info must be validated here
+      localStorage.setItem("apiKey", apiKey);
+      localStorage.setItem("apiSecret", apiSecret);
+      localStorage.setItem("depositAddress", depositAddress);
+      localStorage.setItem("depositMessage", depositMessage);
+      ons.notification.toast("取引所連携情報を登録しました。", { timeout: 1000, animation: 'fall' })
       document.getElementById("apiKeySet").value = "";
       document.getElementById("apiSecret").value = "";
       document.getElementById("depositAddress").value = "";
@@ -136,23 +152,23 @@
       localStorage.removeItem("apiSecret");
       localStorage.removeItem("depositAddress");
       localStorage.removeItem("depositMessage");
-      ons.notification.alert("取引所連携情報を削除しました。");
+      ons.notification.toast("取引所連携情報を削除しました。", { timeout: 1000, animation: 'fall' });
     }
 
     //Transfer Tx
     function transferTx(){
-      const recipientAddress = document.getElementById("recipientAddress").value;
-      const amount = document.getElementById("sendAmount").value;
-      const message = document.getElementById("sendMessage").value;
+      const recipientAddress = htmlEscape(document.getElementById("recipientAddress").value).replace(/-/g, "").trim();
+      const amount = htmlEscape(document.getElementById("sendAmount").value);
+      const message = htmlEscape(document.getElementById("sendMessage").value);
       var transferTx = nem.model.objects.create("transferTransaction")(recipientAddress, amount, message);
       var common = nem.model.objects.create("common")("", localStorage.privateKey);
       var transactionEntity = nem.model.transactions.prepare("transferTransaction")(common, transferTx, nem.model.network.data.mainnet.id);
       var endpoint = nem.model.objects.create("endpoint")(nem.model.nodes.defaultMainnet, nem.model.nodes.defaultPort);
       nem.model.transactions.send(common, transactionEntity, endpoint).then(
         function(res){
-          if(res.message == "SUCCESS"){
+          if(htmlEscape(res.message) === "SUCCESS"){
             var transactionResult = "送付に成功しました。";
-            var transactionHashResult = res.transactionHash.data;
+            var transactionHashResult = htmlEscape(res.transactionHash.data);
             var alertMessage = transactionResult + "\nトランザクションのハッシュは\n" + transactionHashResult + "\nです。";
             document.getElementById("recipientAddress").value = "";
             document.getElementById("sendAmount").value = "";
@@ -161,7 +177,7 @@
             var transactionResult = "エラー：送付に失敗しました！";
             var alertMessage = transactionResult;
           }
-          ons.notification.alert(alertMessage);
+          ons.notification.toast(alertMessage, { timeout: 1000, animation: 'fall' });
         }
       );
     }
@@ -203,12 +219,12 @@
         </ons-list-item>
         <ons-list-item modifier="nodivider">
           <div class="left">アドレス</div>
-          <div id="address" class="right" style="font-size: 10px;">NAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</div>
+          <div id="address" class="right" style="font-size: 10px;"></div>
         </ons-list-item>
         <ons-list-item modifier="nodivider">
           <div class="left">QRコード</div>
-          <div class="right" id="qrAddress">
-              <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=NAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA">
+          <div class="right">
+              <img id="qrAddress">
           </div>
         </ons-list-item>
       </ons-list>
