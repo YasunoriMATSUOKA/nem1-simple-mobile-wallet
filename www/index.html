@@ -15,10 +15,60 @@
   <link rel="stylesheet" href="lib/onsenui/css/onsen-css-components.css">
   <link rel="stylesheet" href="css/style.css">
 
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+  <script src="lib/nem-sdk/nem-sdk.js"></script>
+
   <script>
+    //Load nem-sdk
+    var nem = require("nem-sdk").default;
+
     ons.ready(function () {
       console.log("Onsen UI is ready!");
     });
+
+    //Validate privateKey and if OK get privateKey strings
+    function getPrivateKey(privateKey){
+      if(privateKey !== undefined){
+        var keyPair = nem.crypto.keyPair.create(privateKey);
+        var publicKey = keyPair.publicKey.toString();
+        var address = nem.model.address.toAddress(publicKey, nem.model.network.data.mainnet.id);
+        var isValid = nem.model.address.isValid(address);
+        if(isValid){
+          return privateKey;
+        }else{
+          ons.notification.alert("エラー：アドレスが異常です！適切な秘密鍵を設定タブから登録してください。");
+          return null;
+        }
+      }else{
+        ons.notification.alert("秘密鍵が未登録です！設定タブから登録してご利用ください。");
+        return null;
+      }
+    }
+
+    //Validate address and if OK get address strings
+    function getAddress(privateKey){
+      if(privateKey !== undefined){
+        var keyPair = nem.crypto.keyPair.create(privateKey);
+        var publicKey = keyPair.publicKey.toString();
+        var address = nem.model.address.toAddress(publicKey, nem.model.network.data.mainnet.id);
+        var isValid = nem.model.address.isValid(address);
+        if(isValid){
+          return address;
+        }else{
+          ons.notification.alert("エラー：アドレスが異常です！適切な秘密鍵を設定タブから登録してください。");
+          return null;
+        }
+      }else{
+        ons.notification.alert("秘密鍵が未登録です！設定タブから登録してご利用ください。");
+        return null;
+      }
+    }
+    
+    //Set QR address Todo: innerHTML is not good (for example setAttribute is good?)
+    function setQrAddress(){
+      document.getElementById("qrAddress").innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + getAddress(localStorage.privateKey) + '"></img>';
+    }
 
     document.addEventListener('show', function (event) {
       var page = event.target;
@@ -26,6 +76,8 @@
 
       if (page.matches('#home-page')) {
         titleElement.innerHTML = 'ホーム';
+        document.getElementById("address").innerText = getAddress(localStorage.privateKey);
+        setQrAddress();
       } else if (page.matches('#send-page')) {
         titleElement.innerHTML = '送付';
       } else if (page.matches('#receive-page')) {
@@ -34,12 +86,84 @@
         titleElement.innerHTML = '履歴';
       } else if (page.matches('#settings-page')) {
         titleElement.innerHTML = '設定';
+        document.getElementById("privateKeySet").value = getPrivateKey(localStorage.privateKey);
+        document.getElementById("addressChecked").innerText = getAddress(localStorage.privateKey);
       }
     });
 
     if (ons.platform.isIPhoneX()) {
       document.documentElement.setAttribute('onsflag-iphonex-portrait', '');
       document.documentElement.setAttribute('onsflag-iphonex-landscape', '');
+    }
+
+    //Set private key
+    function setPrivateKey(){
+      const privateKey = document.getElementById("privateKeySet").value;
+      const address = getAddress(privateKey);
+      if(address !== null){
+        document.getElementById("addressChecked").value = address;
+        localStorage.setItem("privateKey", privateKey);
+        document.getElementById("privateKeySet").value = "";
+        ons.notification.alert("秘密鍵を登録しました。")
+      }else{
+        //
+      }
+    }
+    
+    //Delete private key
+    function deletePrivateKey(){
+      localStorage.removeItem("privateKey");
+      ons.notification.alert("秘密鍵を削除しました。");
+    }
+    
+    //Set exchange info
+    function setExchangeInfo(){
+      //Todo: Set info must be validated
+      localStorage.setItem("apiKey", document.getElementById("apiKeySet").value);
+      localStorage.setItem("apiSecret", document.getElementById("apiSecretSet").value);
+      localStorage.setItem("depositAddress", document.getElementById("depositAddress").value);
+      localStorage.setItem("depositMessage", document.getElementById("depositMessage").value);
+      ons.notification.alert("取引所連携情報を登録しました。")
+      document.getElementById("apiKeySet").value = "";
+      document.getElementById("apiSecret").value = "";
+      document.getElementById("depositAddress").value = "";
+      document.getElementById("depositMessage").value = "";
+    }
+    
+    //delete exchange info
+    function deleteExchangeInfo(){
+      localStorage.removeItem("apiKey");
+      localStorage.removeItem("apiSecret");
+      localStorage.removeItem("depositAddress");
+      localStorage.removeItem("depositMessage");
+      ons.notification.alert("取引所連携情報を削除しました。");
+    }
+
+    //Transfer Tx
+    function transferTx(){
+      const recipientAddress = document.getElementById("recipientAddress").value;
+      const amount = document.getElementById("sendAmount").value;
+      const message = document.getElementById("sendMessage").value;
+      var transferTx = nem.model.objects.create("transferTransaction")(recipientAddress, amount, message);
+      var common = nem.model.objects.create("common")("", localStorage.privateKey);
+      var transactionEntity = nem.model.transactions.prepare("transferTransaction")(common, transferTx, nem.model.network.data.mainnet.id);
+      var endpoint = nem.model.objects.create("endpoint")(nem.model.nodes.defaultMainnet, nem.model.nodes.defaultPort);
+      nem.model.transactions.send(common, transactionEntity, endpoint).then(
+        function(res){
+          if(res.message == "SUCCESS"){
+            var transactionResult = "送付に成功しました。";
+            var transactionHashResult = res.transactionHash.data;
+            var alertMessage = transactionResult + "\nトランザクションのハッシュは\n" + transactionHashResult + "\nです。";
+            document.getElementById("recipientAddress").value = "";
+            document.getElementById("sendAmount").value = "";
+            document.getElementById("sendMessage").value = "";
+          }else{
+            var transactionResult = "エラー：送付に失敗しました！";
+            var alertMessage = transactionResult;
+          }
+          ons.notification.alert(alertMessage);
+        }
+      );
     }
   </script>
 </head>
@@ -79,13 +203,15 @@
         </ons-list-item>
         <ons-list-item modifier="nodivider">
           <div class="left">アドレス</div>
-          <div class="right" style="font-size: 10px;">NAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</div>
+          <div id="address" class="right" style="font-size: 10px;">NAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</div>
+        </ons-list-item>
+        <ons-list-item modifier="nodivider">
+          <div class="left">QRコード</div>
+          <div class="right" id="qrAddress">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=NAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA">
+          </div>
         </ons-list-item>
       </ons-list>
-      <p style="text-align: center;">
-        <img
-          src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=NAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA">
-      </p>
       <ons-list>
         <ons-list-header>取引所</ons-list-header>
         <ons-list-item modifier="nodivider">
@@ -97,9 +223,37 @@
 
   <ons-template id="send.html">
     <ons-page id="send-page">
-      <p style="text-align: center;">
-        This is the send page.
-      </p>
+      <ons-list>
+        <ons-list-header>QRコードをスキャンして支払い</ons-list-header>
+        <ons-list-item modifier="nodivider"></ons-list-item>
+        <ons-list-header>手入力で支払い</ons-list-header>
+        <ons-list-item modifier="nodivider">
+          <div class="left">アドレス(必須)</div>
+          <div class="right">
+            <ons-input id="recipientAddress" float placeholder="アドレスを入力"></ons-input>
+          </div>
+        </ons-list-item>
+        <ons-list-item modifier="nodivider">
+          <div class="left">数量(必須)</div>
+          <div class="right">
+            <ons-input id="sendAmount" type="number" float placeholder="数量を入力"></ons-input>
+          </div>
+        </ons-list-item>
+        <ons-list-item modifier="nodivider">
+          <div class="left">メッセージ(任意)</div>
+          <div class="right">
+            <ons-input id="sendMessage" type="string" float placeholder="メッセージを入力"></ons-input>
+          </div>
+        </ons-list-item>
+        <ons-list-item modifier="nodivider">
+          <div class="left">
+            <ons-button onclick="transferTx()">送信</ons-button>
+          </div>
+          <div class="right">
+            <ons-button>入力値クリア</ons-button>
+          </div>
+        </ons-list-item>
+      </ons-list>
     </ons-page>
   </ons-template>
 
@@ -145,13 +299,10 @@
         </ons-list-item>
         <ons-list-item modifier="nodivider">
           <div class="left">
-            <ons-button>保存</ons-button>
-          </div>
-          <div class="center">
-            <ons-button>キャンセル</ons-button>
+            <ons-button onclick="setPrivateKey()">保存</ons-button>
           </div>
           <div class="right">
-            <ons-button>削除</ons-button>
+            <ons-button onclick="deletePrivateKey()">削除</ons-button>
           </div>
         </ons-list-item modifier="nodivider">
         <ons-list-header>取引所設定</ons-list-header>
@@ -191,13 +342,10 @@
         </ons-list-item>
         <ons-list-item modifier="nodivider">
           <div class="left">
-            <ons-button>保存</ons-button>
-          </div>
-          <div class="center">
-            <ons-button>キャンセル</ons-button>
+            <ons-button onclick="setExchangeInfo()">保存</ons-button>
           </div>
           <div class="right">
-            <ons-button>削除</ons-button>
+            <ons-button onclick="deleteExchangeInfo()">削除</ons-button>
           </div>
         </ons-list-item>
       </ons-list>
