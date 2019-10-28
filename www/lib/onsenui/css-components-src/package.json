@@ -27,7 +27,7 @@
     "postcss-cssnext": "3.1.0",
     "postcss-import": "9.1.0",
     "postcss-reporter": "3.0.0",
-    "rimraf": "2.6.1"
+    "rimraf": "2.7.1"
   },
   "engines": {
     "node": ">=0.10.0"
