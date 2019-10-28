@@ -95,7 +95,7 @@
     "gulp-rename": "1.4.0",
     "gulp-replace": "1.0.0",
     "gulp-util": "3.0.8",
-    "gulp-zip": "4.2.0",
+    "gulp-zip": "5.0.1",
     "jsonschema": "1.2.4",
     "karma": "1.7.1",
     "karma-chai": "0.1.0",
