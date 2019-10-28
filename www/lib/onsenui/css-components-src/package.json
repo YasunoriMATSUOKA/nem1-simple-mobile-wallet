@@ -21,7 +21,7 @@
     "gulp-shell": "0.7.1",
     "gulp-stylelint": "10.0.0",
     "gulp-stylus": "2.7.0",
-    "gulp-util": "2.2.20",
+    "gulp-util": "3.0.8",
     "immutable-css": "1.1.2",
     "postcss-base64": "0.7.1",
     "postcss-cssnext": "3.1.0",
