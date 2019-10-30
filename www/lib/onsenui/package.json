@@ -121,7 +121,7 @@
     "rollup-plugin-progress": "1.1.1",
     "rollup-plugin-string": "3.0.0",
     "rollup-plugin-visualizer": "2.6.0",
-    "typescript": "2.9.2",
+    "typescript": "3.6.4",
     "uglify-js": "3.6.4",
     "wcdoc": "0.1.19",
     "wdio-jasmine-framework": "0.3.8",
