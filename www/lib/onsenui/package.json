@@ -117,7 +117,7 @@
     "rollup-plugin-eslint": "7.0.0",
     "rollup-plugin-execute": "1.1.1",
     "rollup-plugin-filesize": "6.2.1",
-    "rollup-plugin-node-resolve": "3.4.0",
+    "rollup-plugin-node-resolve": "5.2.0",
     "rollup-plugin-progress": "0.4.0",
     "rollup-plugin-string": "2.0.2",
     "rollup-plugin-visualizer": "0.9.2",
