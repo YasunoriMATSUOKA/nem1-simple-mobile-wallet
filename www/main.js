@@ -71,28 +71,26 @@ function isValidAddress(addressRaw) {
   }
 }
 
-//Validate address and if OK get address strings
-function getAddress(privateKey) {
-  if (privateKey) {
-    var keyPair = nem.crypto.keyPair.create(htmlEscape(privateKey));
-    var publicKey = keyPair.publicKey.toString();
-    var address = nem.model.address.toAddress(publicKey, nem.model.network.data.mainnet.id);
-    var isValid = nem.model.address.isValid(address);
-    if (isValid) {
-      return address;
-    } else {
-      ons.notification.toast("エラー：アドレスが異常です！適切な秘密鍵を設定タブから登録してください。", {
-        timeout: 1000,
-        animation: 'fall'
-      });
-      return "";
-    }
+//Get address strings
+function getAddress(AddressRaw) {
+  if (isValidAddress(AddressRaw)) {
+    return htmlEscape(AddressRaw).trim();
   } else {
     ons.notification.toast("秘密鍵が未登録です！設定タブから登録してご利用ください。", {
       timeout: 1000,
       animation: 'fall'
     });
     return "";
+  }
+}
+
+//Get QR Address
+function getQrUrl(address){
+  if(isValidAddress(address)){
+    const url = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="' + getAddress(localStorage.privateKey) + '"';
+    return url;
+  }else{
+    return 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=""'
   }
 }
 
@@ -108,8 +106,8 @@ document.addEventListener('show', function (event) {
 
   if (page.matches('#home-page')) {
     titleElement.innerHTML = 'ホーム';
-    document.getElementById("address").innerText = getAddress(localStorage.privateKey);
-    setQrAddress();
+    document.getElementById("address").innerText = getAddressFromPrivateKey(localStorage.privateKey);
+    document.getElementById("qrAddress").setAttribute("src", getQrUrl(localStorage.privateKey));
   } else if (page.matches('#send-page')) {
     titleElement.innerHTML = '送付';
   } else if (page.matches('#receive-page')) {
@@ -119,7 +117,7 @@ document.addEventListener('show', function (event) {
   } else if (page.matches('#settings-page')) {
     titleElement.innerHTML = '設定';
     document.getElementById("privateKeySet").value = getPrivateKey(localStorage.privateKey);
-    document.getElementById("addressChecked").innerText = getAddress(localStorage.privateKey);
+    document.getElementById("addressChecked").innerText = getAddressFromPrivateKey(localStorage.privateKey);
   }
 });
 
