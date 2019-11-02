@@ -41,7 +41,7 @@
     "glob": "7.1.5",
     "gulp-file": "0.4.0",
     "js-yaml": "3.13.1",
-    "rollup": "1.26.2",
+    "rollup": "1.26.3",
     "rollup-plugin-babel": "4.3.3",
     "rollup-plugin-commonjs": "10.1.0"
   }
