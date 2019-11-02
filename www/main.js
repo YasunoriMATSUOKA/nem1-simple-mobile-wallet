@@ -1,6 +1,9 @@
 //Load nem-sdk
 var nem = require("nem-sdk").default;
 
+//proxyUrl
+const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+
 //Onsen UI is ready
 ons.ready(function () {
   console.log("Onsen UI is ready!");
@@ -18,7 +21,7 @@ function htmlEscape(s) {
 
 //Get address from privateKey
 function getAddressFromPrivateKey(privateKeyRaw) {
-  if (privateKeyRaw) {
+  if (privateKeyRaw !== undefined) {
     var keyPair = nem.crypto.keyPair.create(htmlEscape(privateKeyRaw).trim());
     var publicKey = keyPair.publicKey.toString();
     var address = nem.model.address.toAddress(publicKey, nem.model.network.data.mainnet.id);
@@ -33,7 +36,7 @@ function getAddressFromPrivateKey(privateKeyRaw) {
       return "";
     }
   } else {
-    ons.notification.toast("エラー：アドレスが異常です！適切な秘密鍵を設定タブから登録してください。", {
+    ons.notification.toast("秘密鍵がまだ登録されていないようです。秘密鍵を設定タブから登録してください。", {
       timeout: 1000,
       animation: 'fall'
     });
@@ -43,7 +46,7 @@ function getAddressFromPrivateKey(privateKeyRaw) {
 
 //Validate privateKey
 function isValidPrivateKey(privateKeyRaw) {
-  if (privateKeyRaw) {
+  if (privateKeyRaw !== undefined) {
     var address = getAddressFromPrivateKey(htmlEscape(privateKeyRaw).trim());
     var isValid = nem.model.address.isValid(address);
     return isValid ? true : false;
@@ -52,14 +55,16 @@ function isValidPrivateKey(privateKeyRaw) {
   }
 }
 
-//Get privateKey strings
+//Get privateKey
 function getPrivateKey(privateKeyRaw) {
-  return isValidPrivateKey(privateKeyRaw) ? htmlEscape(privateKeyRaw).trim() : "";
+  if (privateKeyRaw !== undefined) {
+    return isValidPrivateKey(privateKeyRaw) ? htmlEscape(privateKeyRaw).trim() : "";
+  }
 }
 
 //Validate address
 function isValidAddress(addressRaw) {
-  if (addressRaw) {
+  if (addressRaw !== undefined) {
     var isValid = nem.model.address.isValid(htmlEscape(addressRaw));
     return isValid ? true : false;
   } else {
@@ -71,7 +76,7 @@ function isValidAddress(addressRaw) {
   }
 }
 
-//Get address strings
+//Get address
 function getAddress(AddressRaw) {
   if (isValidAddress(AddressRaw)) {
     return htmlEscape(AddressRaw).trim();
@@ -84,20 +89,111 @@ function getAddress(AddressRaw) {
   }
 }
 
-//Get QR Address
-function getQrUrl(address){
-  if(isValidAddress(address)){
-    const url = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="' + getAddress(localStorage.privateKey) + '"';
-    return url;
-  }else{
-    return 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=""'
+//Set QR Address
+function setQrAddress(address) {
+  if (isValidAddress(address)) {
+    $(function () {
+      $('#qrAddress').qrcode({
+        width: 150,
+        height: 150,
+        text: htmlEscape(address)
+      });
+    });
   }
 }
 
-//Set QR address
-function setQrAddress() {
-  const url = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="' + getAddress(localStorage.privateKey) + '"';
-  document.getElementById("qrAddress").setAttribute("src", url);
+//Get Random Node Url
+async function getRandomNodeUrl() {
+  const endpointUrl = "https://s3-ap-northeast-1.amazonaws.com/xembook.net/data/v4/node.json"
+  const url = proxyUrl + endpointUrl;
+  var abortController = new AbortController();
+  setTimeout(() => abortController.abort(), 10000);
+  await fetch(url, {
+      signal: abortController.signal
+    })
+    .then(res => res.json())
+    .then(res => {
+      console.log(res);
+      const nodeList = res.https;
+      if (nodeList !== []) {
+        const nodeUrl = nodeList[Math.floor(Math.random() * nodeList.length)];
+        console.log(nodeUrl);
+        document.getElementById("nodeUrl").innerText = nodeUrl;
+        getXemBalance(nodeUrl, getAddressFromPrivateKey(localStorage.privateKey));
+        return nodeUrl;
+      } else {
+        document.getElementById("nodeUrl").innerText = "";
+        return "";
+      }
+    })
+    .catch(error => {
+      console.error(error);
+      document.getElementById("nodeUrl").innerText = "";
+      return "";
+    });
+}
+
+//Get XEM balance
+async function getXemBalance(nodeUrl, address) {
+  if (isValidAddress(getAddress(address))) {
+    const endpointUrl = nodeUrl + "/account/get?address=" + getAddress(address);
+    const url = proxyUrl + endpointUrl;
+    var abortController = new AbortController();
+    setTimeout(() => abortController.abort(), 10000);
+    try {
+      const res = await fetch(url, {
+        signal: abortController.signal
+      });
+      const json = await res.json();
+      console.log(json);
+      const balance = json.account.balance / 1000000;
+      document.getElementById("balance").innerText = balance;
+    } catch {
+      error => {
+        console.error(error);
+        ons.notification.toast(error, {
+          timeout: 1000,
+          animation: 'fall'
+        });
+      }
+    }
+  }
+}
+
+//Get last price
+async function getLastPrice() {
+  document.getElementById("lastPrice").innerHTML = '<ons-icon icon="fa-spinner"></ons-icon>'
+  const endpointUrl = "https://api.zaif.jp/api/1/last_price/xem_jpy";
+  const url = proxyUrl + endpointUrl;
+  var abortController = new AbortController();
+  setTimeout(() => abortController.abort(), 10000);
+  await fetch(url, {
+      signal: abortController.signal
+    })
+    .then(res => res.json())
+    .then(res => {
+      document.getElementById("lastPrice").innerText = res.last_price;
+    })
+    .catch(error => {
+      ons.notification.toast(error);
+      document.getElementById("lastPrice").innerText = 0;
+    });
+}
+
+//Calculate Amount Todo: This function is not completed yet
+function calculateAmount() {
+  const address = getAddressFromPrivateKey(localStorage.privateKey);
+  const invoiceCurrency = document.getElementById("invoiceCurrency").value;
+  const lastPrice = document.getElementById("lastPrice").value;
+  if (invoiceCurrency === "XEM") {
+    const invoiceAmount = document.getElementById("invoiceAmount").value;
+    const amount = Math.floor(invoiceAmount * 1000000);
+    document.getElementById("calculatedCurrency").value = "JPY";
+  } else if (invoiceCurrency === "JPY") {
+    //
+  } else {
+    ons.notification.alert("エラー：通貨が特定できません！");
+  }
 }
 
 document.addEventListener('show', function (event) {
@@ -107,11 +203,14 @@ document.addEventListener('show', function (event) {
   if (page.matches('#home-page')) {
     titleElement.innerHTML = 'ホーム';
     document.getElementById("address").innerText = getAddressFromPrivateKey(localStorage.privateKey);
-    document.getElementById("qrAddress").setAttribute("src", getQrUrl(localStorage.privateKey));
+    document.getElementById("qrAddress").innerText = "";
+    getRandomNodeUrl();
+    setQrAddress(getAddressFromPrivateKey(localStorage.privateKey));
   } else if (page.matches('#send-page')) {
     titleElement.innerHTML = '送付';
   } else if (page.matches('#receive-page')) {
     titleElement.innerHTML = '受取';
+    getLastPrice();
   } else if (page.matches('#history-page')) {
     titleElement.innerHTML = '履歴';
   } else if (page.matches('#settings-page')) {
@@ -129,23 +228,22 @@ if (ons.platform.isIPhoneX()) {
 //Set private key
 function setPrivateKey() {
   const privateKey = htmlEscape(document.getElementById("privateKeySet").value);
-  const address = getAddress(privateKey);
-  if (address !== null) {
-    document.getElementById("addressChecked").value = address;
+  const address = getAddressFromPrivateKey(privateKey);
+  if (address !== "") {
+    document.getElementById("addressChecked").innerText = address;
     localStorage.setItem("privateKey", privateKey);
-    document.getElementById("privateKeySet").value = "";
     ons.notification.toast("秘密鍵を登録しました。", {
       timeout: 1000,
       animation: 'fall'
     })
-  } else {
-    //
   }
 }
 
 //Delete private key
 function deletePrivateKey() {
   localStorage.removeItem("privateKey");
+  document.getElementById("privateKeySet").value = "";
+  document.getElementById("addressChecked").innerText = "";
   ons.notification.toast("秘密鍵を削除しました。", {
     timeout: 1000,
     animation: 'fall'
@@ -187,7 +285,7 @@ function deleteExchangeInfo() {
 
 //Transfer Tx
 function transferTx() {
-  const recipientAddress = htmlEscape(document.getElementById("recipientAddress").value).replace(/-/g, "").trim();
+  const recipientAddress = getAddress(htmlEscape(document.getElementById("recipientAddress").value).replace(/-/g, "").trim());
   const amount = htmlEscape(document.getElementById("sendAmount").value);
   const message = htmlEscape(document.getElementById("sendMessage").value);
   var transferTx = nem.model.objects.create("transferTransaction")(recipientAddress, amount, message);

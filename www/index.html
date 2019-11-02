@@ -15,7 +15,8 @@
   <link rel="stylesheet" href="lib/onsenui/css/onsen-css-components.css">
   <link rel="stylesheet" href="css/style.css">
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="lib/jquery/jquery-3.4.1.min.js"></script>
+  <script src="lib/jquery/jquery.qrcode.min.js"></script>
   <script src="lib/nem-sdk/nem-sdk.js"></script>
   <script src="main.js"></script>
 </head>
@@ -46,9 +47,10 @@
         <ons-list-item modifier="nodivider">
           <div class="left">通貨</div>
           <div class="right">
+            <span id="balance"></span>
             <ons-select>
               <select id="currency">
-                <option value="XEM">XEM</option>
+                <option value="XEM">[XEM]</option>
               </select>
             </ons-select>
           </div>
@@ -59,9 +61,11 @@
         </ons-list-item>
         <ons-list-item modifier="nodivider">
           <div class="left">QRコード</div>
-          <div class="right">
-              <img id="qrAddress">
-          </div>
+          <div id="qrAddress" class="right"></div>
+        </ons-list-item>
+        <ons-list-item>
+          <div class="left">ノード</div>
+          <div id="nodeUrl" class="right" style="font-size: 12px;"></div>
         </ons-list-item>
       </ons-list>
       <ons-list>
@@ -111,9 +115,49 @@
 
   <ons-template id="receive.html">
     <ons-page id="receive-page">
-      <p style="text-align: center;">
-        This is the receive page.
-      </p>
+      <ons-list>
+        <ons-list-header>
+          QRコード
+        </ons-list-header>
+        <ons-list-item modifier="nodivider">
+          <img id="qrInvoice">
+        </ons-list-item>
+        <ons-list-header>
+          請求情報入力
+        </ons-list-header>
+        <ons-list-item modifier="nodivider">
+          <div class="left">請求額</div>
+          <div class="right">
+            <ons-input id="invoiceAmount" type="number" placeholder=0 float onchange="calculateAmount()"></ons-input>
+            <ons-select>
+              <select id="invoiceCurrency" onchange="calculateAmount()">
+                <option value="XEM">[XEM]</option>
+                <option value="JPY">[JPY]</option>
+              </select>
+            </ons-select>
+          </div>
+        </ons-list-item>
+        <ons-list-item modifier="nodivider">
+          <div class="left">レート</div>
+          <div class="center"><ons-button onclick="getLastPrice()">更新</ons-button></div>
+          <div class="right">
+            <span id="lastPrice">0</span>
+            <span>[JPY/XEM]</span>
+          </div>
+        </ons-list-item>
+        <ons-list-item modifier="nodivider">
+          <div class="left">換算結果</div>
+          <div class="right">
+            <span id="calculatedAmount">0</span>
+            <ons-select>
+              <select id="calculatedCurrency">
+                <option value="JPY">[JPY]</option>
+                <option value="XEM">[XEM]</option>
+              </select>
+            </ons-select>
+          </div>
+        </ons-list-item>
+      </ons-list>
     </ons-page>
   </ons-template>
 
