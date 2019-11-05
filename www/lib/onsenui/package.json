@@ -111,7 +111,7 @@
     "merge-stream": "2.0.0",
     "mkpath": "1.0.0",
     "mocha": "6.2.2",
-    "rollup": "1.26.2",
+    "rollup": "1.26.3",
     "rollup-plugin-babel": "4.3.3",
     "rollup-plugin-commonjs": "10.1.0",
     "rollup-plugin-eslint": "7.0.0",
