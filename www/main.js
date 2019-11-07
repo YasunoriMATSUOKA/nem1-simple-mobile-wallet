@@ -11,7 +11,8 @@ ons.ready(function () {
 
 //HTML Escape
 function htmlEscape(s) {
-  s = s.replace(/&/g, "&amp;")
+  s = s
+    .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
@@ -24,23 +25,30 @@ function getAddressFromPrivateKey(privateKeyRaw) {
   if (privateKeyRaw !== undefined) {
     var keyPair = nem.crypto.keyPair.create(htmlEscape(privateKeyRaw).trim());
     var publicKey = keyPair.publicKey.toString();
-    var address = nem.model.address.toAddress(publicKey, nem.model.network.data.mainnet.id);
+    var address = nem.model.address.toAddress(
+      publicKey,
+      nem.model.network.data.mainnet.id
+    );
     var isValid = nem.model.address.isValid(address);
     if (isValid) {
       return address;
     } else {
-      ons.notification.toast("エラー：アドレスが異常です！適切な秘密鍵を設定タブから登録してください。", {
-        timeout: 1000,
-        animation: 'fall'
-      });
+      ons.notification.toast(
+        "エラー：アドレスが異常です！適切な秘密鍵を設定タブから登録してください。", {
+          timeout: 1000,
+          animation: "fall"
+        }
+      );
       return "";
     }
   } else {
-    ons.notification.toast("秘密鍵がまだ登録されていないようです。秘密鍵を設定タブから登録してください。", {
-      timeout: 1000,
-      animation: 'fall'
-    });
-    return ""
+    ons.notification.toast(
+      "秘密鍵がまだ登録されていないようです。秘密鍵を設定タブから登録してください。", {
+        timeout: 1000,
+        animation: "fall"
+      }
+    );
+    return "";
   }
 }
 
@@ -58,7 +66,9 @@ function isValidPrivateKey(privateKeyRaw) {
 //Get privateKey
 function getPrivateKey(privateKeyRaw) {
   if (privateKeyRaw !== undefined) {
-    return isValidPrivateKey(privateKeyRaw) ? htmlEscape(privateKeyRaw).trim() : "";
+    return isValidPrivateKey(privateKeyRaw) ?
+      htmlEscape(privateKeyRaw).trim() :
+      "";
   }
 }
 
@@ -68,10 +78,12 @@ function isValidAddress(addressRaw) {
     var isValid = nem.model.address.isValid(htmlEscape(addressRaw));
     return isValid ? true : false;
   } else {
-    ons.notification.toast("エラー：アドレスが異常です！適切なアドレスを設定してください。", {
-      timeout: 1000,
-      animation: 'fall'
-    });
+    ons.notification.toast(
+      "エラー：アドレスが異常です！適切なアドレスを設定してください。", {
+        timeout: 1000,
+        animation: "fall"
+      }
+    );
     return false;
   }
 }
@@ -81,10 +93,12 @@ function getAddress(AddressRaw) {
   if (isValidAddress(AddressRaw)) {
     return htmlEscape(AddressRaw).trim();
   } else {
-    ons.notification.toast("秘密鍵が未登録です！設定タブから登録してご利用ください。", {
-      timeout: 1000,
-      animation: 'fall'
-    });
+    ons.notification.toast(
+      "秘密鍵が未登録です！設定タブから登録してご利用ください。", {
+        timeout: 1000,
+        animation: "fall"
+      }
+    );
     return "";
   }
 }
@@ -93,7 +107,7 @@ function getAddress(AddressRaw) {
 function setQrAddress(address) {
   if (isValidAddress(address)) {
     $(function () {
-      $('#qrAddress').qrcode({
+      $("#qrAddress").qrcode({
         width: 150,
         height: 150,
         text: htmlEscape(address)
@@ -102,41 +116,18 @@ function setQrAddress(address) {
   }
 }
 
-//Get Random Node Url
-async function getRandomNodeUrl() {
-  const endpointUrl = "https://s3-ap-northeast-1.amazonaws.com/xembook.net/data/v4/node.json"
-  const url = proxyUrl + endpointUrl;
-  var abortController = new AbortController();
-  setTimeout(() => abortController.abort(), 10000);
-  await fetch(url, {
-      signal: abortController.signal
-    })
-    .then(res => res.json())
-    .then(res => {
-      console.log(res);
-      const nodeList = res.https;
-      if (nodeList !== []) {
-        const nodeUrl = nodeList[Math.floor(Math.random() * nodeList.length)];
-        console.log(nodeUrl);
-        document.getElementById("nodeUrl").innerText = nodeUrl;
-        getXemBalance(nodeUrl, getAddressFromPrivateKey(localStorage.privateKey));
-        return nodeUrl;
-      } else {
-        document.getElementById("nodeUrl").innerText = "";
-        return "";
-      }
-    })
-    .catch(error => {
-      console.error(error);
-      document.getElementById("nodeUrl").innerText = "";
-      return "";
-    });
+//Get random https node url
+async function getRandomHttpsNodeUrl() {
+  const nis1node = new NIS1Node();
+  await nis1node.getAllList();
+  const httpsRandomNodeUrl = nis1node.httpsRandomNodeUrl;
+  return httpsRandomNodeUrl;
 }
 
 //Get XEM balance
-async function getXemBalance(nodeUrl, address) {
+async function getXemBalance(address) {
   if (isValidAddress(getAddress(address))) {
-    const endpointUrl = nodeUrl + "/account/get?address=" + getAddress(address);
+    const endpointUrl = await getRandomHttpsNodeUrl() + "/account/get?address=" + getAddress(address);
     const url = proxyUrl + endpointUrl;
     var abortController = new AbortController();
     setTimeout(() => abortController.abort(), 10000);
@@ -145,15 +136,14 @@ async function getXemBalance(nodeUrl, address) {
         signal: abortController.signal
       });
       const json = await res.json();
-      console.log(json);
       const balance = json.account.balance / 1000000;
-      document.getElementById("balance").innerText = balance;
+      return balance;
     } catch {
       error => {
         console.error(error);
         ons.notification.toast(error, {
           timeout: 1000,
-          animation: 'fall'
+          animation: "fall"
         });
       }
     }
@@ -162,7 +152,8 @@ async function getXemBalance(nodeUrl, address) {
 
 //Get last price
 async function getLastPrice() {
-  document.getElementById("lastPrice").innerHTML = '<ons-icon icon="fa-spinner"></ons-icon>'
+  document.getElementById("lastPrice").innerHTML =
+    '<ons-icon icon="fa-spinner"></ons-icon>';
   const endpointUrl = "https://api.zaif.jp/api/1/last_price/xem_jpy";
   const url = proxyUrl + endpointUrl;
   var abortController = new AbortController();
@@ -196,33 +187,39 @@ function calculateAmount() {
   }
 }
 
-document.addEventListener('show', function (event) {
+document.addEventListener("show", async function (event) {
   var page = event.target;
-  var titleElement = document.querySelector('#toolbar-title');
+  var titleElement = document.querySelector("#toolbar-title");
 
-  if (page.matches('#home-page')) {
-    titleElement.innerHTML = 'ホーム';
-    document.getElementById("address").innerText = getAddressFromPrivateKey(localStorage.privateKey);
+  if (page.matches("#home-page")) {
+    titleElement.innerHTML = "ホーム";
+    document.getElementById("address").innerText = getAddressFromPrivateKey(
+      localStorage.privateKey
+    );
     document.getElementById("qrAddress").innerText = "";
-    getRandomNodeUrl();
     setQrAddress(getAddressFromPrivateKey(localStorage.privateKey));
-  } else if (page.matches('#send-page')) {
-    titleElement.innerHTML = '送付';
-  } else if (page.matches('#receive-page')) {
-    titleElement.innerHTML = '受取';
+    document.getElementById("balance").textContent = await getXemBalance(getAddressFromPrivateKey(localStorage.privateKey));
+  } else if (page.matches("#send-page")) {
+    titleElement.innerHTML = "送付";
+  } else if (page.matches("#receive-page")) {
+    titleElement.innerHTML = "受取";
     getLastPrice();
-  } else if (page.matches('#history-page')) {
-    titleElement.innerHTML = '履歴';
-  } else if (page.matches('#settings-page')) {
-    titleElement.innerHTML = '設定';
-    document.getElementById("privateKeySet").value = getPrivateKey(localStorage.privateKey);
-    document.getElementById("addressChecked").innerText = getAddressFromPrivateKey(localStorage.privateKey);
+  } else if (page.matches("#history-page")) {
+    titleElement.innerHTML = "履歴";
+  } else if (page.matches("#settings-page")) {
+    titleElement.innerHTML = "設定";
+    document.getElementById("privateKeySet").value = getPrivateKey(
+      localStorage.privateKey
+    );
+    document.getElementById(
+      "addressChecked"
+    ).innerText = getAddressFromPrivateKey(localStorage.privateKey);
   }
 });
 
 if (ons.platform.isIPhoneX()) {
-  document.documentElement.setAttribute('onsflag-iphonex-portrait', '');
-  document.documentElement.setAttribute('onsflag-iphonex-landscape', '');
+  document.documentElement.setAttribute("onsflag-iphonex-portrait", "");
+  document.documentElement.setAttribute("onsflag-iphonex-landscape", "");
 }
 
 //Set private key
@@ -234,8 +231,8 @@ function setPrivateKey() {
     localStorage.setItem("privateKey", privateKey);
     ons.notification.toast("秘密鍵を登録しました。", {
       timeout: 1000,
-      animation: 'fall'
-    })
+      animation: "fall"
+    });
   }
 }
 
@@ -246,7 +243,7 @@ function deletePrivateKey() {
   document.getElementById("addressChecked").innerText = "";
   ons.notification.toast("秘密鍵を削除しました。", {
     timeout: 1000,
-    animation: 'fall'
+    animation: "fall"
   });
 }
 
@@ -254,8 +251,12 @@ function deletePrivateKey() {
 function setExchangeInfo() {
   const apiKey = htmlEscape(document.getElementById("apiKeySet").value);
   const apiSecret = htmlEscape(document.getElementById("apiSecretSet").value);
-  const depositAddress = htmlEscape(document.getElementById("depositAddress").value);
-  const depositMessage = htmlEscape(document.getElementById("depositMessage").value);
+  const depositAddress = htmlEscape(
+    document.getElementById("depositAddress").value
+  );
+  const depositMessage = htmlEscape(
+    document.getElementById("depositMessage").value
+  );
   //Todo: Set info must be validated here
   localStorage.setItem("apiKey", apiKey);
   localStorage.setItem("apiSecret", apiSecret);
@@ -263,8 +264,8 @@ function setExchangeInfo() {
   localStorage.setItem("depositMessage", depositMessage);
   ons.notification.toast("取引所連携情報を登録しました。", {
     timeout: 1000,
-    animation: 'fall'
-  })
+    animation: "fall"
+  });
   document.getElementById("apiKeySet").value = "";
   document.getElementById("apiSecret").value = "";
   document.getElementById("depositAddress").value = "";
@@ -279,25 +280,46 @@ function deleteExchangeInfo() {
   localStorage.removeItem("depositMessage");
   ons.notification.toast("取引所連携情報を削除しました。", {
     timeout: 1000,
-    animation: 'fall'
+    animation: "fall"
   });
 }
 
 //Transfer Tx
 function transferTx() {
-  const recipientAddress = getAddress(htmlEscape(document.getElementById("recipientAddress").value).replace(/-/g, "").trim());
+  const recipientAddress = getAddress(
+    htmlEscape(document.getElementById("recipientAddress").value)
+    .replace(/-/g, "")
+    .trim()
+  );
   const amount = htmlEscape(document.getElementById("sendAmount").value);
   const message = htmlEscape(document.getElementById("sendMessage").value);
-  var transferTx = nem.model.objects.create("transferTransaction")(recipientAddress, amount, message);
+  var transferTx = nem.model.objects.create("transferTransaction")(
+    recipientAddress,
+    amount,
+    message
+  );
   var common = nem.model.objects.create("common")("", localStorage.privateKey);
-  var transactionEntity = nem.model.transactions.prepare("transferTransaction")(common, transferTx, nem.model.network.data.mainnet.id);
-  var endpoint = nem.model.objects.create("endpoint")(nem.model.nodes.defaultMainnet, nem.model.nodes.defaultPort);
-  nem.model.transactions.send(common, transactionEntity, endpoint).then(
-    function (res) {
+  var transactionEntity = nem.model.transactions.prepare("transferTransaction")(
+    common,
+    transferTx,
+    nem.model.network.data.mainnet.id
+  );
+  var endpoint = nem.model.objects.create("endpoint")(
+    nem.model.nodes.defaultMainnet,
+    nem.model.nodes.defaultPort
+  );
+  console.log(endpoint);
+  nem.model.transactions
+    .send(common, transactionEntity, endpoint)
+    .then(function (res) {
       if (htmlEscape(res.message) === "SUCCESS") {
         var transactionResult = "送付に成功しました。";
         var transactionHashResult = htmlEscape(res.transactionHash.data);
-        var alertMessage = transactionResult + "\nトランザクションのハッシュは\n" + transactionHashResult + "\nです。";
+        var alertMessage =
+          transactionResult +
+          "\nトランザクションのハッシュは\n" +
+          transactionHashResult +
+          "\nです。";
         document.getElementById("recipientAddress").value = "";
         document.getElementById("sendAmount").value = "";
         document.getElementById("sendMessage").value = "";
@@ -307,8 +329,7 @@ function transferTx() {
       }
       ons.notification.toast(alertMessage, {
         timeout: 1000,
-        animation: 'fall'
+        animation: "fall"
       });
-    }
-  );
+    });
 }
