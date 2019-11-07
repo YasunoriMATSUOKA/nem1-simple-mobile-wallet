@@ -51,6 +51,7 @@
       this.invoiceString = JSON.stringify(this.invoiceObject);
       this.result = undefined;
       this.hash = undefined;
+      this.senderPublicKey = undefined;
       this.senderAddress = undefined;
       this.send = async (privateKey) => {
         //
