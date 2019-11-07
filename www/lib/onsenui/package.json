@@ -125,7 +125,7 @@
     "uglify-js": "3.6.7",
     "wcdoc": "0.1.19",
     "wdio-jasmine-framework": "0.3.8",
-    "webdriverio": "5.15.6"
+    "webdriverio": "5.16.2"
   },
   "dependencies": {
     "@onsenui/custom-elements": "1.0.0",
