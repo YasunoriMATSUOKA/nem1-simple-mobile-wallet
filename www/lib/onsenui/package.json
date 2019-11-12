@@ -122,7 +122,7 @@
     "rollup-plugin-string": "3.0.0",
     "rollup-plugin-visualizer": "2.7.2",
     "typescript": "3.7.2",
-    "uglify-js": "3.6.8",
+    "uglify-js": "3.6.9",
     "wcdoc": "0.1.19",
     "wdio-jasmine-framework": "0.3.8",
     "webdriverio": "5.16.5"
