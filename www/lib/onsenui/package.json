@@ -120,7 +120,7 @@
     "rollup-plugin-node-resolve": "5.2.0",
     "rollup-plugin-progress": "1.1.1",
     "rollup-plugin-string": "3.0.0",
-    "rollup-plugin-visualizer": "2.7.2",
+    "rollup-plugin-visualizer": "3.0.6",
     "typescript": "3.7.2",
     "uglify-js": "3.6.8",
     "wcdoc": "0.1.19",
